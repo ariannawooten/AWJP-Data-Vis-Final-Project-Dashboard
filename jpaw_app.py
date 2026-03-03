@@ -1,3 +1,4 @@
+## SEPARATE DASHBOARD REPO VERSION ##
 # DASHBOARD CODE #
 
 #load libraries
@@ -9,7 +10,13 @@ import altair as alt
 import json
 
 # load data
-cha = pd.read_csv('/Users/ariannawooten/Downloads/final_project_AWJP_w26/data/raw-data/Chicago Health Atlas Data Download - Census Tracts.csv')#chicago health atlas data (2020)
+#cha = pd.read_csv('/Users/ariannawooten/Downloads/final_project_AWJP_w26/data/raw-data/Chicago Health Atlas Data Download - Census Tracts.csv')#chicago health atlas data (2020)
+@st.cache_data
+
+def load_data():
+    return pd.read_csv('Chicago_Health_Atlas_Data.csv')
+
+cha = load_data()
 
 # remove first 3 rows, which have data definitions, citations, etc.
 cha = cha.iloc[4:809]
