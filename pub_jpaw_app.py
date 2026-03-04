@@ -3,6 +3,7 @@
 
 #load libraries
 import streamlit as st
+import geopandas as gpd
 import pandas as pd
 import numpy as np
 import altair as alt
@@ -14,30 +15,74 @@ import json
 @st.cache_data
 
 def load_data():
-    return pd.read_csv('Chicago_Health_Atlas_Data.csv')
+    # load health (cha) data
+    df_cha = pd.read_csv('Chicago_Health_Atlas_Data.csv')
+    # remove first 3 rows, which have data definitions, citations, etc.
+    df_cha = df_cha.iloc[4:809]
+    # convert to gdf
+    df_cha = gpd.GeoDataFrame(
+    df_cha, geometry=gpd.points_from_xy(
+        df_cha.Longitude, df_cha.Latitude), 
+        crs="EPSG:4326")
 
-cha = load_data()
+    # load census tract geodata
+    df_census = gpd.read_file('CensusTractsTIGER2010_20260303.geojson')
+    
+    # load pharmacy data and convert to gdf
+    df_pharm = pd.read_csv('Pharmacy_Status_-_Historical_20260302.csv').dropna(subset=['New Georeferenced Column'])
+    # drop nas
+    df_pharm = df_pharm.dropna(subset=['New Georeferenced Column'])
 
-# remove first 3 rows, which have data definitions, citations, etc.
-cha = cha.iloc[4:809]
+    # drop na strings
+    df_pharm = df_pharm[
+        df_pharm['New Georeferenced Column']
+        .str.lower()
+        .ne('nan')
+    ]
+
+    # convert wkt to a geometry
+    df_pharm['geometry'] = gpd.GeoSeries.from_wkt(
+        df_pharm['New Georeferenced Column'],
+        on_invalid='ignore'
+    )
+    # drop failed parses
+    df_pharm = df_pharm.dropna(subset=['geometry'])
+    # create geodataframe
+    pharm_gdf = gpd.GeoDataFrame(
+        df_pharm,
+        geometry='geometry',
+        crs='EPSG:4326'
+        )
+    
+    # merge census tract and pharmacy location data
+    combined2_gdf = gpd.sjoin(df_census, pharm_gdf, 
+                how='left',
+                predicate='intersects')
+    # rename geo id column for merging 
+    combined2_gdf = combined2_gdf.rename(columns={'geoid10':'GEOID'})
+
+    return df_cha, df_census, pharm_gdf
+
+df_cha, df_census, pharm_gdf = load_data()
+
 
 # make the tract names numeric (https://www.statology.org/pandas-remove-characters-from-string/)
-cha['Name'] = cha['Name'].str.replace('Tract ', '')
+df_cha['Name'] = df_cha['Name'].str.replace('Tract ', '')
 
 # create data subsets with different categories of census tracts
 # first convert income column to numeric data type
-cha['INC_2020-2024'] = pd.to_numeric(cha['INC_2020-2024'], downcast=None)
+df_cha['INC_2020-2024'] = pd.to_numeric(df_cha['INC_2020-2024'], downcast=None)
 
 # create df for below median income tracts
-low_inc = cha[cha['INC_2020-2024']< cha['INC_2020-2024'].median()]
+low_inc = df_cha[df_cha['INC_2020-2024']< df_cha['INC_2020-2024'].median()]
 
 # create df for above median hardship index
-cha['HDX_2020-2024'] = pd.to_numeric(cha['HDX_2020-2024'], downcast=None)
-hdx = cha[cha['HDX_2020-2024'] > cha['HDX_2020-2024'].median()]
+df_cha['HDX_2020-2024'] = pd.to_numeric(df_cha['HDX_2020-2024'], downcast=None)
+hdx = df_cha[df_cha['HDX_2020-2024'] > df_cha['HDX_2020-2024'].median()]
 
 # create df for above median percentage of seniors living alone
-cha['SLA-S_2020-2024'] = pd.to_numeric(cha['SLA-S_2020-2024'], downcast=None)
-senior = cha[cha['SLA-S_2020-2024'] > cha['SLA-S_2020-2024'].median()]
+df_cha['SLA-S_2020-2024'] = pd.to_numeric(df_cha['SLA-S_2020-2024'], downcast=None)
+senior = df_cha[df_cha['SLA-S_2020-2024'] > df_cha['SLA-S_2020-2024'].median()]
 
 
 # create histogram: proximity to roads, railways, and airports by census
@@ -88,10 +133,10 @@ demographics = st.sidebar.selectbox("Sample Options", sample_options.values())
 
 st.subheader(f"Chicago Transportation Burden by Census Tract ({demographics})")
 
-def create_plot(df=cha):
+def create_plot(df=df_cha):
     # determine which data subset to use
     if demographics == 'All':
-        df = cha
+        df = df_cha
     if demographics == 'Low Median Household Income':
         df = low_inc
     if demographics == 'High Hardship Index':
@@ -117,4 +162,7 @@ def create_plot(df=cha):
     return(transpo)
 
 st.altair_chart(create_plot(), use_container_width=True)
+
+
+#### test
 
