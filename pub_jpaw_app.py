@@ -27,7 +27,8 @@ def load_data():
 
     # load census tract geodata
     df_census = gpd.read_file('CensusTractsTIGER2010_20260303.geojson')
-    
+    df_census = df_census.rename(columns={'geoid10':'GEOID'})
+
     # load pharmacy data and convert to gdf
     df_pharm = pd.read_csv('Pharmacy_Status_-_Historical_20260302.csv').dropna(subset=['New Georeferenced Column'])
     # drop nas
@@ -148,8 +149,8 @@ def create_plot(df=df_cha):
         df = senior
     
     transpo = alt.Chart(df).mark_bar(color='navy').encode(
-        alt.X('Name:O', title='Census Tract', sort = alt.EncodingSortField(field='average(RITB_2022):Q', order = 'descending')).bin(),
-        alt.Y('average(RITB_2022):Q', title='Transportation Burden (Percentile)')
+        alt.X('Name:N', title='Census Tract', sort = alt.EncodingSortField(field='RITB_2022', order = 'descending')),
+        alt.Y('RITB_2022:Q', title='Transportation Burden (Percentile)')
     )
 
     # add a line showing the 50th percentile
@@ -169,3 +170,26 @@ st.altair_chart(create_plot(), use_container_width=True)
 
 #### test
 
+# count pharmacies per tract
+pharm_counts = (
+    cha_pharm
+    .groupby('GEOID')
+    .size()
+    .reset_index(name='pharmacy_count')
+)
+
+# merge counts back to census polygons
+census_and_pharm_gdf = df_census.merge(
+    pharm_counts,
+    on='GEOID',
+    how='left'
+)
+
+# fill missing tracts with zero pharmacies
+census_and_pharm_gdf['pharmacy_count'] = (
+    census_and_pharm_gdf['pharmacy_count']
+    .fillna(0)
+)
+
+
+census_and_pharm_gdf.columns
