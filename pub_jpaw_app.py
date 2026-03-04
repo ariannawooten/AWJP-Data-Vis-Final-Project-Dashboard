@@ -61,9 +61,12 @@ def load_data():
     # rename geo id column for merging 
     combined2_gdf = combined2_gdf.rename(columns={'geoid10':'GEOID'})
 
-    return df_cha, df_census, pharm_gdf
+    # merge all data together: pharmacy location, census tract, and health data by census tract
+    cha_pharm = combined2_gdf.merge(df_cha, on='GEOID')
 
-df_cha, df_census, pharm_gdf = load_data()
+    return cha_pharm, df_cha, df_census, pharm_gdf
+
+cha_pharm, df_cha, df_census, pharm_gdf = load_data()
 
 
 # make the tract names numeric (https://www.statology.org/pandas-remove-characters-from-string/)
