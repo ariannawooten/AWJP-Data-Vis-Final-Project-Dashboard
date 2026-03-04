@@ -190,6 +190,3 @@ census_and_pharm_gdf['pharmacy_count'] = (
     census_and_pharm_gdf['pharmacy_count']
     .fillna(0)
 )
-
-
-census_and_pharm_gdf.columns
