@@ -16,15 +16,8 @@ import json
 
 def load_data():
     # load health (cha) data
-    df_cha = pd.read_csv('Chicago_Health_Atlas_Data.csv')
-    # remove first 3 rows, which have data definitions, citations, etc.
-    df_cha = df_cha.iloc[4:809]
-    # convert to gdf
-    #df_cha = gpd.GeoDataFrame(
-    #df_cha, geometry=gpd.points_from_xy(
-    #    df_cha.Longitude, df_cha.Latitude), 
-     #   crs="EPSG:4326")
-
+    df_cha = pd.read_csv('all_merged.csv')
+    
     # load census tract geodata
     #df_census = gpd.read_file('CensusTractsTIGER2010_20260303.geojson')
     #df_census = df_census.rename(columns={'geoid10':'GEOID'})
