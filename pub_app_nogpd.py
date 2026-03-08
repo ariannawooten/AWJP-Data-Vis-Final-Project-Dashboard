@@ -135,13 +135,16 @@ scatter_options = {'INC_2020-2024':'Median household income', 'RITB_2022':'Trans
 scatter_select = st.sidebar.selectbox("See correlation between pharmacy density and...", list(scatter_options.keys()),
                                       format_func=lambda x: scatter_options[x])
 
+#show boxplots?
+show_box = st.sidebar.checkbox("Show boxplot?", value=True)
+
 # scatter plot options
 #show_unchanged = st.sidebar.checkbox("Show routes with no cuts", value=True)
 #mode_filter = st.sidebar.multiselect("Mode", ["Bus", "L"], default=["Bus", "L"])
 
 st.subheader(f"Chicago Transportation Burden by Census Tract ({demographics})")
 
-
+# CREATE BAR PLOT
 def create_plot(df=df_cha):
     # determine which data subset to use
     if demographics == 'All':
@@ -173,6 +176,7 @@ def create_plot(df=df_cha):
 if show_barplot:
     st.altair_chart(create_plot(), use_container_width=True)
 
+# CREATE SCATTER PLOT
 def make_scatterplot(x_col):
     scatter = alt.Chart(df_cha).mark_point().encode(
         alt.X(x_col, title=scatter_options[x_col]),
@@ -184,3 +188,15 @@ def make_scatterplot(x_col):
 if show_scatter:
     st.altair_chart(make_scatterplot(scatter_select), use_container_width=True)
 
+### CREATE BOXPLOT
+# same code as scatterplot but with different mark + binned data
+def make_boxplot(x_col):
+    boxplot = alt.Chart(df_cha).mark_boxplot().encode(
+        alt.X(x_col, title=scatter_options[x_col]).bin(),
+        alt.Y('pharm_density', title='Pharmacy Density (Number of Pharmacies per Square Mile)')
+    )
+
+    return boxplot
+
+if show_box:
+    st.altair_chart(make_boxplot(scatter_select), use_container_width=True)
