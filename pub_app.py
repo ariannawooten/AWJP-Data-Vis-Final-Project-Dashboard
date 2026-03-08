@@ -65,9 +65,9 @@ def load_data():
     # merge all data together: pharmacy location, census tract, and health data by census tract
   #  cha_pharm = combined2_gdf.merge(df_cha, on='GEOID')
 
-    return cha_pharm, df_cha, df_census, pharm_gdf
+    return df_cha
 
-cha_pharm, df_cha, df_census, pharm_gdf = load_data()
+df_cha = load_data()
 
 
 # make the tract names numeric (https://www.statology.org/pandas-remove-characters-from-string/)
@@ -168,25 +168,3 @@ def create_plot(df=df_cha):
 st.altair_chart(create_plot(), use_container_width=True)
 
 
-#### test
-
-# count pharmacies per tract
-pharm_counts = (
-    cha_pharm
-    .groupby('GEOID')
-    .size()
-    .reset_index(name='pharmacy_count')
-)
-
-# merge counts back to census polygons
-census_and_pharm_gdf = df_census.merge(
-    pharm_counts,
-    on='GEOID',
-    how='left'
-)
-
-# fill missing tracts with zero pharmacies
-census_and_pharm_gdf['pharmacy_count'] = (
-    census_and_pharm_gdf['pharmacy_count']
-    .fillna(0)
-)
