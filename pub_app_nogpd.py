@@ -8,7 +8,7 @@ import pandas as pd
 import numpy as np
 import altair as alt
 #import pydeck as pdk
-import json
+import json 
 
 # load data
 #cha = pd.read_csv('/Users/ariannawooten/Downloads/final_project_AWJP_w26/data/raw-data/Chicago Health Atlas Data Download - Census Tracts.csv')#chicago health atlas data (2020)
