@@ -129,6 +129,7 @@ demographics = st.sidebar.selectbox("Sample Options", sample_options.values())
 #mode_filter = st.sidebar.multiselect("Mode", ["Bus", "L"], default=["Bus", "L"])
 
 st.subheader(f"Chicago Transportation Burden by Census Tract ({demographics})")
+show_barplot = st.sidebar.checkbox("Show icky barplots?", value=False)
 
 def create_plot(df=df_cha):
     # determine which data subset to use
@@ -158,6 +159,8 @@ def create_plot(df=df_cha):
     transpo = transpo + median
     return(transpo)
 
-st.altair_chart(create_plot(), use_container_width=True)
+if show_barplot:
+    st.altair_chart(create_plot(), use_container_width=True)
+
 
 
