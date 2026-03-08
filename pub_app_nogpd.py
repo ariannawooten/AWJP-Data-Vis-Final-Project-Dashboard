@@ -123,10 +123,19 @@ st.set_page_config(page_title="Chicago Health and Pharmacy Access Dashboard", la
 st.title("Chicago Health and Pharmacy Access Dashboard")
 
 # ── Sidebar controls ──────────────────────────────────────────
+# show barplots?
 show_barplot = st.sidebar.checkbox("Show icky barplots?", value=False)
-show_scatter = st.sidebar.checkbox("Show scatterplot?", value=True)
+# bar plot options
 demographics = st.sidebar.selectbox("Sample Options", sample_options.values())
 
+# show scatter plots?
+show_scatter = st.sidebar.checkbox("Show scatterplot?", value=True)
+# source: https://discuss.streamlit.io/t/format-func-function-examples-please/11295
+scatter_options = {'INC_2020-2024':'Median household income', 'RITB_2022':'Transportation Burden Percentile'}
+scatter_select = st.sidebar.selectbox("See correlation between pharmacy density and...", list(scatter_options.keys()),
+                                      format_func=lambda x: scatter_options[x])
+
+# scatter plot options
 #show_unchanged = st.sidebar.checkbox("Show routes with no cuts", value=True)
 #mode_filter = st.sidebar.multiselect("Mode", ["Bus", "L"], default=["Bus", "L"])
 
@@ -164,14 +173,14 @@ def create_plot(df=df_cha):
 if show_barplot:
     st.altair_chart(create_plot(), use_container_width=True)
 
-def make_scatterplot():
+def make_scatterplot(x_col):
     scatter = alt.Chart(df_cha).mark_point().encode(
-        alt.X('RITB_2022'),
-        alt.Y('pharm_density')
+        alt.X(x_col, title=scatter_options[x_col]),
+        alt.Y('pharm_density', title='Pharmacy Density (Number of Pharmacies per Square Mile)')
     )
 
     return scatter
 
 if show_scatter:
-    st.altair_chart(make_scatterplot(), use_container_width=True)
+    st.altair_chart(make_scatterplot(scatter_select), use_container_width=True)
 
