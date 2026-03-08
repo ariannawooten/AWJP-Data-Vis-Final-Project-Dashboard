@@ -123,13 +123,15 @@ st.set_page_config(page_title="Chicago Health and Pharmacy Access Dashboard", la
 st.title("Chicago Health and Pharmacy Access Dashboard")
 
 # ── Sidebar controls ──────────────────────────────────────────
+show_barplot = st.sidebar.checkbox("Show icky barplots?", value=False)
+show_scatter = st.sidebar.checkbox("Show scatterplot?", value=True)
 demographics = st.sidebar.selectbox("Sample Options", sample_options.values())
 
 #show_unchanged = st.sidebar.checkbox("Show routes with no cuts", value=True)
 #mode_filter = st.sidebar.multiselect("Mode", ["Bus", "L"], default=["Bus", "L"])
 
 st.subheader(f"Chicago Transportation Burden by Census Tract ({demographics})")
-show_barplot = st.sidebar.checkbox("Show icky barplots?", value=False)
+
 
 def create_plot(df=df_cha):
     # determine which data subset to use
@@ -162,5 +164,14 @@ def create_plot(df=df_cha):
 if show_barplot:
     st.altair_chart(create_plot(), use_container_width=True)
 
+def make_scatterplot():
+    scatter = alt.Chart(df_cha).mark_point().encode(
+        alt.X('RITB_2022'),
+        alt.Y('pharm_density')
+    )
 
+    return scatter
+
+if show_scatter:
+    st.altair_chart(make_scatterplot(), use_container_width=True)
 
