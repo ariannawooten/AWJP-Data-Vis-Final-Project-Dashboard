@@ -3,7 +3,7 @@
 
 #load libraries
 import streamlit as st
-import geopandas as gpd
+#import geopandas as gpd
 import pandas as pd
 import numpy as np
 import altair as alt
@@ -12,7 +12,7 @@ import json
 
 # load data
 #cha = pd.read_csv('/Users/ariannawooten/Downloads/final_project_AWJP_w26/data/raw-data/Chicago Health Atlas Data Download - Census Tracts.csv')#chicago health atlas data (2020)
-@st.cache_data
+@st.cache_data 
 
 def load_data():
     # load health (cha) data
@@ -20,14 +20,14 @@ def load_data():
     # remove first 3 rows, which have data definitions, citations, etc.
     df_cha = df_cha.iloc[4:809]
     # convert to gdf
-    df_cha = gpd.GeoDataFrame(
-    df_cha, geometry=gpd.points_from_xy(
-        df_cha.Longitude, df_cha.Latitude), 
-        crs="EPSG:4326")
+    #df_cha = gpd.GeoDataFrame(
+    #df_cha, geometry=gpd.points_from_xy(
+    #    df_cha.Longitude, df_cha.Latitude), 
+     #   crs="EPSG:4326")
 
     # load census tract geodata
-    df_census = gpd.read_file('CensusTractsTIGER2010_20260303.geojson')
-    df_census = df_census.rename(columns={'geoid10':'GEOID'})
+    #df_census = gpd.read_file('CensusTractsTIGER2010_20260303.geojson')
+    #df_census = df_census.rename(columns={'geoid10':'GEOID'})
 
     # load pharmacy data and convert to gdf
     df_pharm = pd.read_csv('Pharmacy_Status_-_Historical_20260302.csv').dropna(subset=['New Georeferenced Column'])
@@ -42,28 +42,28 @@ def load_data():
     ]
 
     # convert wkt to a geometry
-    df_pharm['geometry'] = gpd.GeoSeries.from_wkt(
-        df_pharm['New Georeferenced Column'],
-        on_invalid='ignore'
-    )
+    #df_pharm['geometry'] = gpd.GeoSeries.from_wkt(
+    #    df_pharm['New Georeferenced Column'],
+    #    on_invalid='ignore'
+   # )
     # drop failed parses
-    df_pharm = df_pharm.dropna(subset=['geometry'])
+    #df_pharm = df_pharm.dropna(subset=['geometry'])
     # create geodataframe
-    pharm_gdf = gpd.GeoDataFrame(
-        df_pharm,
-        geometry='geometry',
-        crs='EPSG:4326'
-        )
+    #pharm_gdf = gpd.GeoDataFrame(
+    #    df_pharm,
+    #    geometry='geometry',
+    #    crs='EPSG:4326'
+    #    )
     
     # merge census tract and pharmacy location data
-    combined2_gdf = gpd.sjoin(df_census, pharm_gdf, 
-                how='left',
-                predicate='intersects')
+   # combined2_gdf = gpd.sjoin(df_census, pharm_gdf, 
+   #             how='left',
+    #            predicate='intersects')
     # rename geo id column for merging 
-    combined2_gdf = combined2_gdf.rename(columns={'geoid10':'GEOID'})
+   # combined2_gdf = combined2_gdf.rename(columns={'geoid10':'GEOID'})
 
     # merge all data together: pharmacy location, census tract, and health data by census tract
-    cha_pharm = combined2_gdf.merge(df_cha, on='GEOID')
+  #  cha_pharm = combined2_gdf.merge(df_cha, on='GEOID')
 
     return cha_pharm, df_cha, df_census, pharm_gdf
 
