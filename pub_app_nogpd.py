@@ -156,7 +156,7 @@ def create_plot(df=df_cha):
     # determine which data subset to use
     if demographics == 'All Census Tracts':
         df = df_cha
-    if demographics == 'Low Median Household Income':
+    if demographics == 'Low (Below City Median) Median Household Income':
         df = low_inc
     if demographics == 'High Hardship Index':
         df = hdx
