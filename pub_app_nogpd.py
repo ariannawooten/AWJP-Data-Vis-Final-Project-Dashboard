@@ -134,7 +134,7 @@ demographics = st.sidebar.selectbox("Density Plot Sample Options", sample_option
 # show scatter plots?
 show_scatter = st.sidebar.checkbox("Show scatterplot", value=True)
 # source: https://discuss.streamlit.io/t/format-func-function-examples-please/11295
-scatter_options = {'INC_2020-2024':'Median household income', 'RITB_2022':'Transportation Burden Percentile'}
+scatter_options = {'INC_2020-2024':'Median Household Income', 'RITB_2022':'Transportation Burden Percentile'}
 scatter_select = st.sidebar.selectbox("Scatterplot x-axis:", list(scatter_options.keys()),
                                       format_func=lambda x: scatter_options[x])
 
@@ -144,7 +144,6 @@ scatter_select = st.sidebar.selectbox("Scatterplot x-axis:", list(scatter_option
 #show_unchanged = st.sidebar.checkbox("Show routes with no cuts", value=True)
 #mode_filter = st.sidebar.multiselect("Mode", ["Bus", "L"], default=["Bus", "L"])
 
-st.subheader(f"Chicago Transportation Burden by Census Tract ({demographics})")
 
 # CREATE BAR PLOT
 def create_plot(df=df_cha):
@@ -158,7 +157,7 @@ def create_plot(df=df_cha):
     if demographics == 'High Percentage of Seniors Living Alone':
         df = senior
     
-    transpo = alt.Chart(df).mark_bar(color='navy').encode(
+    transpo = alt.Chart(df, title=f"Chicago Transportation Burden by Census Tract ({demographics})").mark_bar(color='navy').encode(
         alt.X('Name:N', title='Census Tract Number', sort = alt.EncodingSortField(field='RITB_2022', order = 'descending')),
         alt.Y('RITB_2022:Q', title='Transportation Burden (Percentile)')
     )
@@ -183,7 +182,7 @@ def make_scatterplot(x_col):
     scatter = alt.Chart(df_cha).mark_point().encode(
         alt.X(x_col, title=scatter_options[x_col]),
         alt.Y('pharm_density', title='Pharmacy Density (Number of Pharmacies per Square Mile)')
-    )
+    ).properties(title=f"{scatter_options[x_col]} and Pharmacy Density", height=600)
 
     return scatter
 
