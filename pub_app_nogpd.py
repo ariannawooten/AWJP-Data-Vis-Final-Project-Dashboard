@@ -154,7 +154,7 @@ if show_scatter:
 # CREATE BAR PLOT
 def create_plot(df=df_cha):
     # determine which data subset to use
-    if demographics == 'All':
+    if demographics == 'All Census Tracts':
         df = df_cha
     if demographics == 'Low Median Household Income':
         df = low_inc
