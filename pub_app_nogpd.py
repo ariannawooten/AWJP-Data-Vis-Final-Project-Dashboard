@@ -115,7 +115,7 @@ senior = df_cha[df_cha['SLA-S_2020-2024'] > df_cha['SLA-S_2020-2024'].median()]
 #transpo
 
 #demo_options = ['All', 'Low Median Household Income','Hardship Index', 'Percentage of Seniors Living Alone']
-sample_options = {'cha': 'All', 'low_inc': 'Low Median Household Income', 'hdx': 'High Hardship Index', 'senior': 'High Percentage of Seniors Living Alone'}
+sample_options = {'cha': 'All Census Tracts', 'low_inc': 'Low (Below City Median) Median Household Income', 'hdx': 'High Hardship Index', 'senior': 'High Percentage of Seniors Living Alone'}
 
 
 # ── Page config ────────────────────────────────────────────────
@@ -124,19 +124,18 @@ st.title("Chicago Health and Pharmacy Access Dashboard")
 
 # ── Sidebar controls ──────────────────────────────────────────
 # show barplots?
-show_barplot = st.sidebar.checkbox("Show icky barplots?", value=False)
+show_barplot = st.sidebar.checkbox("Show density plot", value=False)
 # bar plot options
-demographics = st.sidebar.selectbox("Sample Options", sample_options.values())
+demographics = st.sidebar.selectbox("Density Plot Sample Options", sample_options.values())
 
 # show scatter plots?
-show_scatter = st.sidebar.checkbox("Show scatterplot?", value=True)
+show_scatter = st.sidebar.checkbox("Show scatterplot", value=True)
 # source: https://discuss.streamlit.io/t/format-func-function-examples-please/11295
 scatter_options = {'INC_2020-2024':'Median household income', 'RITB_2022':'Transportation Burden Percentile'}
-scatter_select = st.sidebar.selectbox("See correlation between pharmacy density and...", list(scatter_options.keys()),
+scatter_select = st.sidebar.selectbox("Scatterplot x-axis:", list(scatter_options.keys()),
                                       format_func=lambda x: scatter_options[x])
 
-#show boxplots?
-show_box = st.sidebar.checkbox("Show boxplot?", value=True)
+
 
 # scatter plot options
 #show_unchanged = st.sidebar.checkbox("Show routes with no cuts", value=True)
@@ -157,7 +156,7 @@ def create_plot(df=df_cha):
         df = senior
     
     transpo = alt.Chart(df).mark_bar(color='navy').encode(
-        alt.X('Name:N', title='Census Tract', sort = alt.EncodingSortField(field='RITB_2022', order = 'descending')),
+        alt.X('Name:N', title='Census Tract Number', sort = alt.EncodingSortField(field='RITB_2022', order = 'descending')),
         alt.Y('RITB_2022:Q', title='Transportation Burden (Percentile)')
     )
 
@@ -188,15 +187,3 @@ def make_scatterplot(x_col):
 if show_scatter:
     st.altair_chart(make_scatterplot(scatter_select), use_container_width=True)
 
-### CREATE BOXPLOT
-# same code as scatterplot but with different mark + binned data
-def make_boxplot(x_col):
-    boxplot = alt.Chart(df_cha).mark_boxplot().encode(
-        alt.X(x_col, title=scatter_options[x_col]).bin(),
-        alt.Y('pharm_density', title='Pharmacy Density (Number of Pharmacies per Square Mile)')
-    )
-
-    return boxplot
-
-if show_box:
-    st.altair_chart(make_boxplot(scatter_select), use_container_width=True)
