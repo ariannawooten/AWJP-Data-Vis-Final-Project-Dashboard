@@ -129,13 +129,17 @@ st.text('Hardship Index: a numerical score that tries to quantify community hard
 # show barplots?
 show_barplot = st.sidebar.checkbox("Show density plot", value=False)
 # bar plot options
-demographics = st.sidebar.selectbox("Density Plot Sample Options", sample_options.values())
+if show_barplot:
+    demographics = st.sidebar.selectbox("Density Plot Sample Options", sample_options.values())
 
 # show scatter plots?
 show_scatter = st.sidebar.checkbox("Show scatterplot", value=True)
-# source: https://discuss.streamlit.io/t/format-func-function-examples-please/11295
+
 scatter_options = {'INC_2020-2024':'Median Household Income', 'RITB_2022':'Transportation Burden Percentile'}
-scatter_select = st.sidebar.selectbox("Scatterplot x-axis:", list(scatter_options.keys()),
+
+# source: https://discuss.streamlit.io/t/format-func-function-examples-please/11295
+if show_scatter:
+    scatter_select = st.sidebar.selectbox("Scatterplot x-axis:", list(scatter_options.keys()),
                                       format_func=lambda x: scatter_options[x])
 
 
