@@ -121,6 +121,9 @@ sample_options = {'cha': 'All Census Tracts', 'low_inc': 'Low (Below City Median
 # ── Page config ────────────────────────────────────────────────
 st.set_page_config(page_title="Chicago Health and Pharmacy Access Dashboard", layout="wide")
 st.title("Chicago Health and Pharmacy Access Dashboard")
+st.subheader("Data definitions:")
+st.text("Transporation Burden: a percentile value based on average cost and time spent on transportation (a higher value indicates a higher transportation burden)")
+st.text('Hardship Index: a numerical score that tries to quantify community hardship based on unemployment, age dependency, education, per capita income, crowded housing, and poverty')
 
 # ── Sidebar controls ──────────────────────────────────────────
 # show barplots?
