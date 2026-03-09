@@ -121,7 +121,7 @@ sample_options = {'cha': 'All Census Tracts', 'low_inc': 'Low (Below City Median
 # ── Page config ────────────────────────────────────────────────
 st.set_page_config(page_title="Chicago Health and Pharmacy Access Dashboard", layout="wide")
 st.title("Chicago Health and Pharmacy Access Dashboard")
-st.subheader("Data definitions:")
+st.subheader("Data Definitions:")
 st.text("Transporation Burden: a percentile value based on average cost and time spent on transportation (a higher value indicates a higher transportation burden)")
 st.text('Hardship Index: a numerical score that tries to quantify community hardship based on unemployment, age dependency, education, per capita income, crowded housing, and poverty')
 
@@ -135,13 +135,15 @@ if show_barplot:
 # show scatter plots?
 show_scatter = st.sidebar.checkbox("Show scatterplot", value=True)
 
-scatter_options = {'INC_2020-2024':'Median Household Income', 'RITB_2022':'Transportation Burden Percentile'}
+scatter_x_options = {'INC_2020-2024':'Median Household Income', 'RITB_2022':'Transportation Burden Percentile', 'EKW_2024':'Walkability Score', 'POV_2020-2024':'Poverty Rate'}
+scatter_y_options = {'pharm_density': 'Pharmacy Density', 'pharm_per_1000': 'Pharmacies per 1000 Residents', 'RITB_2022':'Transportation Burden Percentile'}
 
 # source: https://discuss.streamlit.io/t/format-func-function-examples-please/11295
 if show_scatter:
-    scatter_select = st.sidebar.selectbox("Scatterplot x-axis:", list(scatter_options.keys()),
-                                      format_func=lambda x: scatter_options[x])
-
+    scatter_x_select = st.sidebar.selectbox("Scatterplot x-axis:", list(scatter_x_options.keys()),
+                                      format_func=lambda x: scatter_x_options[x])
+    scatter_y_select = st.sidebar.selectbox("Scatterplot y-axis:", list(scatter_y_options.keys()),
+                                      format_func=lambda y: scatter_y_options[y])
 
 
 # scatter plot options
@@ -182,14 +184,14 @@ if show_barplot:
     st.altair_chart(create_plot(), use_container_width=True)
 
 # CREATE SCATTER PLOT
-def make_scatterplot(x_col):
+def make_scatterplot(x_col, y_col):
     scatter = alt.Chart(df_cha).mark_point().encode(
-        alt.X(x_col, title=scatter_options[x_col]),
-        alt.Y('pharm_density', title='Pharmacy Density (Number of Pharmacies per Square Mile)')
-    ).properties(title=f"{scatter_options[x_col]} and Pharmacy Density", height=600)
+        alt.X(x_col, title=scatter_x_options[x_col]),
+        alt.Y(y_col, title=scatter_y_options[y_col])
+    ).properties(title=f"{scatter_x_options[x_col]} and {scatter_y_options[y_col]}", height=600)
 
     return scatter
 
 if show_scatter:
-    st.altair_chart(make_scatterplot(scatter_select), use_container_width=True)
+    st.altair_chart(make_scatterplot(scatter_x_select, scatter_y_select), use_container_width=True)
 
